@@ -1,0 +1,29 @@
+h2 {
+    font-family: 'Inter', sans-serif;
+    font-size: 32Wpx;
+    margin-bottom: 20px;
+    justify-content: center;
+
+}
+
+.login-form-container {
+    width: 300px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+#formBasicUsername , #formBasicPassword {
+    font-family: 'Inter', sans-serif;
+    
+
+    margin-bottom: 20px;
+}
+
+Form.Label {
+    
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    margin-bottom: 20px;
+    text-align: left;
+
+}
