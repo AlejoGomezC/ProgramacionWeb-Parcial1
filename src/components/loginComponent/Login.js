@@ -1,68 +1,103 @@
-import { useState } from 'react';
-import './Login.css';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button, Form } from 'react-bootstrap';
+import './Login.css'; // Asegúrate de importar tu archivo CSS si es necesario
 
+const translations = {
+    en: {
+        title: 'Log in',
+        usernameLabel: 'Username',
+        passwordLabel: 'Password',
+        loginButton: 'Log in',
+        cancelButton: 'Cancel',
+        invalidCredentials: 'Invalid credentials. Please try again.',
+        loginError: 'An error occurred while logging in. Please try again.'
+    },
+    es: {
+        title: 'Inicio de sesión',
+        usernameLabel: 'Nombre de usuario',
+        passwordLabel: 'Contraseña',
+        loginButton: 'Iniciar sesión',
+        cancelButton: 'Cancelar',
+        invalidCredentials: 'Credenciales inválidas. Por favor, inténtelo de nuevo.',
+        loginError: 'Ha ocurrido un error al iniciar sesión. Por favor, inténtelo de nuevo.'
+    }
+};
 
 function Login() {
+    const navigate = useNavigate();
+    const [language, setLanguage] = useState('es'); // Establecer el idioma predeterminado
 
-    const [formValues, setFormValues] = useState({ username: '', password: '' });
-    const [passwordError, setPasswordError] = useState('');
+    const [inputs, setInputs] = useState({
+        username: "",
+        password: "",
+    });
 
+    const { username, password } = inputs;
 
-    const handleUsernameChange = (e) => {
-        const newUsername = e.target.value;
-        setFormValues({ ...formValues, username: newUsername });
-
+    const onChange = e => {
+        setInputs({ ...inputs, [e.target.name]: e.target.value });
     };
 
-    const handlePasswordChange = (e) => {
-        const newPassword = e.target.value;
-        setFormValues({ ...formValues, password: newPassword });
-        validatePassword(newPassword);
-    };
+    const onSubmitForm = async e => {
+        e.preventDefault();
 
+        try {
+            const body = { login: username, password };
+            const response = await fetch("http://localhost:3001/login", {
+                method: "POST",
+                mode: 'cors',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            });
+            const parseRes = await response.json();
 
-    const validatePassword = (password) => {
-        if (password.length < 9) {
-            setPasswordError('La contraseña debe tener al menos 9 caracteres');
-        } else {
-            setPasswordError('');
+            if (parseRes.status === "success") {
+                navigate("/vehicleList");
+            } else {
+                alert(translations[language].invalidCredentials);
+            }
+        } catch (err) {
+            console.error(err.message);
+            alert(translations[language].loginError);
         }
     };
 
-
-
     return (
         <div className="login-form-container">
-            <h2>Iniciar Sesión</h2>
-            <Form>
-                <Form.Group className="mb-6" controlId="formBasicUsername">
-                    <Form.Label >Nombre de Usuario</Form.Label>
+            <h2>{translations[language].title}</h2>
+            <Form onSubmit={onSubmitForm}>
+                <Form.Group controlId="formBasicUsername">
+                    <Form.Label>{translations[language].usernameLabel}</Form.Label>
                     <Form.Control
-                        type="username"
-                
-                        onChange={handleUsernameChange}
+                        type="text"
+                        name="username"
+                        value={username}
+                        onChange={onChange}
                     />
                 </Form.Group>
 
-                <Form.Group className="mb-3" controlId="formBasicPassword">
-                    <Form.Label>Contraseña</Form.Label>
+                <Form.Group controlId="formBasicPassword">
+                    <Form.Label>{translations[language].passwordLabel}</Form.Label>
                     <br></br>
                     <Form.Control
                         type="password"
-                        onChange={handlePasswordChange}
-                        isInvalid={!!passwordError}
+                        name="password"
+                        value={password}
+                        onChange={onChange}
                     />
                 </Form.Group>
 
-                <Button type = "button" variant="primary">
-                    Submit
-                </Button>
+                <div className="btn-container">
+                    <Button variant="primary" type="submit">
+                        {translations[language].loginButton}
+                    </Button>
+                    <Button variant="secondary">
+                        {translations[language].cancelButton}
+                    </Button>
+                </div>
             </Form>
         </div>
-
-
     );
 }
 
